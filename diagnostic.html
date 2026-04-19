@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Diagnostic PérigueuxAccess</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+    .error { color: #ff4444; }
+    .ok { color: #44ff44; }
+    .warn { color: #ffaa00; }
+    pre { white-space: pre-wrap; word-break: break-all; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h2>🔍 Diagnostic PérigueuxAccess</h2>
+  <div id="log"></div>
+
+  <script>
+    const log = document.getElementById('log');
+    function print(msg, type='') {
+      const d = document.createElement('div');
+      d.className = type;
+      d.textContent = msg;
+      log.appendChild(d);
+    }
+
+    // Capturer toutes les erreurs
+    window.onerror = (msg, src, line, col, err) => {
+      print('❌ ERREUR: ' + msg, 'error');
+      print('   Fichier: ' + src, 'error');
+      print('   Ligne: ' + line + ', Colonne: ' + col, 'error');
+      if (err && err.stack) print('   Stack: ' + err.stack, 'error');
+    };
+
+    window.addEventListener('unhandledrejection', (e) => {
+      print('❌ PROMISE REJECTÉE: ' + e.reason, 'error');
+    });
+
+    print('✅ JavaScript fonctionne');
+    print('✅ Navigateur: ' + navigator.userAgent.substring(0, 80));
+
+    // Test localStorage
+    try {
+      localStorage.setItem('test', '1');
+      localStorage.removeItem('test');
+      print('✅ localStorage fonctionne');
+    } catch(e) {
+      print('❌ localStorage BLOQUÉ: ' + e.message, 'error');
+    }
+
+    // Test window.storage
+    if (window.storage) {
+      print('✅ window.storage disponible (Claude)');
+    } else {
+      print('⚠️ window.storage absent (normal sur Vercel)', 'warn');
+    }
+
+    // Charger React
+    print('⏳ Chargement React...');
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/react@18/umd/react.production.min.js';
+    s.onload = () => {
+      print('✅ React chargé');
+      const s2 = document.createElement('script');
+      s2.src = 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js';
+      s2.onload = () => print('✅ ReactDOM chargé');
+      s2.onerror = () => print('❌ ReactDOM IMPOSSIBLE À CHARGER', 'error');
+      document.head.appendChild(s2);
+    };
+    s.onerror = () => print('❌ React IMPOSSIBLE À CHARGER', 'error');
+    document.head.appendChild(s);
+
+    // Charger Leaflet
+    print('⏳ Chargement Leaflet...');
+    const l = document.createElement('script');
+    l.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+    l.onload = () => print('✅ Leaflet chargé');
+    l.onerror = () => print('❌ Leaflet IMPOSSIBLE À CHARGER', 'error');
+    document.head.appendChild(l);
+
+    // Tester le module principal
+    setTimeout(() => {
+      print('⏳ Test import module /src/main.jsx...');
+      const m = document.createElement('script');
+      m.type = 'module';
+      m.textContent = `
+        try {
+          const mod = await import('/src/main.jsx');
+          document.getElementById('log').innerHTML += '<div class="ok">✅ main.jsx chargé</div>';
+        } catch(e) {
+          document.getElementById('log').innerHTML += '<div class="error">❌ ERREUR main.jsx: ' + e.message + '</div>';
+          document.getElementById('log').innerHTML += '<div class="error">Stack: ' + (e.stack||'').substring(0,500) + '</div>';
+        }
+      `;
+      document.head.appendChild(m);
+    }, 2000);
+
+    print('✅ Diagnostic lancé — attends 5 secondes...');
+  </script>
+</body>
+</html>
