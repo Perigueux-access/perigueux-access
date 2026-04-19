@@ -1,0 +1,27 @@
+{
+  "name": "PérigueuxAccess",
+  "short_name": "PérigueuxAccess",
+  "description": "La carte collaborative de l'accessibilité à Périgueux",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5EFE0",
+  "theme_color": "#C65D3F",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "lifestyle", "navigation"],
+  "lang": "fr",
+  "dir": "ltr"
+}
