@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fond terracotta arrondi -->
+  <rect width="512" height="512" rx="115" fill="#C65D3F"/>
+  
+  <!-- Cercle central crème -->
+  <circle cx="256" cy="220" r="155" fill="#F5EFE0"/>
+  
+  <!-- Symbole accessibilité modernisé -->
+  <!-- Tête -->
+  <circle cx="256" cy="130" r="38" fill="#C65D3F"/>
+  
+  <!-- Corps en mouvement (fauteuil roulant stylisé) -->
+  <!-- Torse -->
+  <path d="M256 178 L230 258 L290 258 Z" fill="#C65D3F"/>
+  
+  <!-- Roue arrière grande -->
+  <circle cx="222" cy="298" r="42" fill="none" stroke="#C65D3F" stroke-width="18"/>
+  
+  <!-- Roue avant petite -->
+  <circle cx="295" cy="298" r="22" fill="none" stroke="#C65D3F" stroke-width="14"/>
+  
+  <!-- Bras tendus vers l'avant (dynamique) -->
+  <path d="M256 210 Q285 235 310 255" fill="none" stroke="#C65D3F" stroke-width="16" stroke-linecap="round"/>
+
+  <!-- Goutte de localisation en bas -->
+  <path d="M256 360 C220 320 195 295 195 272 C195 244 223 222 256 222 C289 222 317 244 317 272 C317 295 292 320 256 360Z" fill="#F5EFE0"/>
+  <circle cx="256" cy="272" r="18" fill="#C65D3F"/>
+
+  <!-- Texte PA en bas -->
+  <text x="256" y="460" font-family="Georgia, serif" font-size="72" font-weight="900" fill="#F5EFE0" text-anchor="middle" letter-spacing="-2">PA</text>
+</svg>

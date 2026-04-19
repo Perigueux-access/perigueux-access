@@ -2,13 +2,54 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#C65D3F" />
-    <title>PérigueuxAccess</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>PérigueuxAccess — L'accessibilité à portée de main</title>
+    <meta name="description" content="PérigueuxAccess cartographie les lieux accessibles PMR à Périgueux : restaurants, parcs, commerces + espace diabète." />
     <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#C65D3F" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PérigueuxAccess" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <meta property="og:title" content="PérigueuxAccess" />
+    <meta property="og:description" content="La carte collaborative de l'accessibilité à Périgueux" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://perigueux-access.fr" />
+    <style>
+      html, body {
+        background-color: #F5EFE0;
+        margin: 0; padding: 0;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      #loading-screen {
+        position: fixed; inset: 0;
+        background: #F5EFE0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 16px; font-family: Georgia, serif; z-index: 9999;
+      }
+      #loading-screen .icon { font-size: 64px; animation: pulse 1.5s ease-in-out infinite; }
+      #loading-screen .text { font-size: 20px; font-weight: 700; color: #2E2618; letter-spacing: -0.02em; }
+      @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    </style>
   </head>
   <body>
+    <div id="loading-screen">
+      <div class="icon">♿</div>
+      <div class="text">Chargement de Périgueux...</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const ls = document.getElementById('loading-screen');
+          if (ls) { ls.style.opacity='0'; ls.style.transition='opacity 0.4s ease'; setTimeout(()=>ls.remove(),400); }
+        }, 800);
+      });
+    </script>
   </body>
 </html>
