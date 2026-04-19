@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>PérigueuxAccess</title>
+    <meta name="description" content="PérigueuxAccess — L'accessibilité à Périgueux" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#C65D3F" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PérigueuxAccess" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <style>
+      html, body { margin: 0; padding: 0; background: #F5EFE0; }
+      #loading-screen {
+        position: fixed; inset: 0; background: #F5EFE0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 16px; font-family: Georgia, serif; z-index: 9999;
+        transition: opacity 0.4s ease;
+      }
+      #loading-screen .icon { font-size: 64px; }
+      #loading-screen .text { font-size: 20px; font-weight: 700; color: #2E2618; }
+      #error-screen {
+        display: none; position: fixed; inset: 0; background: #F5EFE0;
+        flex-direction: column; align-items: center; justify-content: center;
+        gap: 12px; font-family: Georgia, serif; padding: 30px; text-align: center;
+        z-index: 9998;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div class="icon">♿</div>
+      <div class="text">Chargement de Périgueux...</div>
+    </div>
+
+    <div id="error-screen">
+      <div style="font-size:48px">⚠️</div>
+      <div style="font-size:18px;font-weight:700;color:#C65D3F">Erreur de démarrage</div>
+      <div id="error-msg" style="font-size:12px;color:#666;max-width:300px;word-break:break-word;"></div>
+      <button onclick="location.reload()" style="padding:12px 24px;background:#C65D3F;color:white;border:none;border-radius:20px;font-size:14px;cursor:pointer;margin-top:8px">Réessayer</button>
+    </div>
+
+    <div id="root"></div>
+
+    <script>
+      // Si React ne démarre pas dans 8 secondes → afficher erreur
+      var loadTimeout = setTimeout(function() {
+        var ls = document.getElementById('loading-screen');
+        var es = document.getElementById('error-screen');
+        var em = document.getElementById('error-msg');
+        if (ls && ls.style.display !== 'none' && ls.style.opacity !== '0') {
+          ls.style.display = 'none';
+          es.style.display = 'flex';
+          em.textContent = 'React n\'a pas pu démarrer. Vérifiez votre connexion et réessayez.';
+        }
+      }, 8000);
+
+      // Capturer les erreurs JavaScript
+      window.onerror = function(msg, src, line, col, err) {
+        clearTimeout(loadTimeout);
+        var ls = document.getElementById('loading-screen');
+        var es = document.getElementById('error-screen');
+        var em = document.getElementById('error-msg');
+        if (ls) ls.style.display = 'none';
+        if (es) es.style.display = 'flex';
+        if (em) em.textContent = msg + ' (ligne ' + line + ')';
+        return false;
+      };
+
+      window.addEventListener('unhandledrejection', function(e) {
+        clearTimeout(loadTimeout);
+        var ls = document.getElementById('loading-screen');
+        var es = document.getElementById('error-screen');
+        var em = document.getElementById('error-msg');
+        if (ls) ls.style.display = 'none';
+        if (es) es.style.display = 'flex';
+        if (em) em.textContent = 'Erreur: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+      });
+    </script>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
