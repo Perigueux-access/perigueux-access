@@ -1499,6 +1499,79 @@ function MapView({ theme, fontDisplay, filters, setFilters, showFilters, setShow
   );
 }
 
+// ============================================================
+// 📸 HOOK — Charge les vraies photos Google Places pour un lieu
+// Appelle notre serverless function /api/google-photos
+// ============================================================
+function useGooglePhotos(placeName, placeAddress, fallbackPhotos) {
+  const [photos, setPhotos] = useState(fallbackPhotos || []);
+  const [loading, setLoading] = useState(false);
+  const [isGoogle, setIsGoogle] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPhotos() {
+      if (!placeName) return;
+
+      // Cache local 24h pour éviter les appels répétés
+      const cacheKey = `gphotos_v1_${placeName}`;
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const { urls, timestamp, found } = JSON.parse(cached);
+          if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+            if (found && urls.length > 0 && !cancelled) {
+              setPhotos(urls);
+              setIsGoogle(true);
+            }
+            return;
+          }
+        }
+      } catch (e) {}
+
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({ name: placeName });
+        if (placeAddress) params.append('address', placeAddress);
+
+        const res = await fetch(`/api/google-photos?${params}`);
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (!cancelled && data.photos && data.photos.length > 0) {
+          setPhotos(data.photos);
+          setIsGoogle(true);
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify({
+              urls: data.photos,
+              found: true,
+              timestamp: Date.now(),
+            }));
+          } catch (e) {}
+        } else if (!cancelled) {
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify({
+              urls: [],
+              found: false,
+              timestamp: Date.now(),
+            }));
+          } catch (e) {}
+        }
+      } catch (err) {
+        console.warn('Photos Google indisponibles:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadPhotos();
+    return () => { cancelled = true; };
+  }, [placeName, placeAddress]);
+
+  return { photos, loading, isGoogle };
+}
+
 // ======================================================
 // VUE DÉTAIL D'UN LIEU
 // ======================================================
@@ -1512,10 +1585,18 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
   const isFav = profile.favorites.includes(place.id);
   const avgRating = place.reviews.length > 0 ? place.reviews.reduce((s,r)=>s+r.rating,0)/place.reviews.length : place.score;
 
-  // Photos : priorité aux photos du lieu, sinon photos par défaut par type
-  const photos = (place.photos && place.photos.length > 0)
+  // Photos : d'abord Google Places (vraies photos), sinon photos du lieu, sinon photos par défaut
+  const fallbackPhotos = (place.photos && place.photos.length > 0)
     ? place.photos
     : (DEFAULT_PHOTOS[place.type] || []);
+  const { photos, loading: photosLoading, isGoogle } = useGooglePhotos(
+    place.name,
+    place.address,
+    fallbackPhotos
+  );
+
+  // Reset photoIdx quand on change de lieu
+  useEffect(() => { setPhotoIdx(0); }, [place.id]);
 
   // Distance si géoloc
   const distanceKm = userLocation
@@ -1536,6 +1617,44 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
             }}
             onError={(e) => { e.target.style.display = 'none'; }}
           />
+          {/* Badge source des photos (Google Places) */}
+          {isGoogle && (
+            <div style={{
+              position: 'absolute',
+              bottom: 12,
+              right: 12,
+              background: 'rgba(0,0,0,0.65)',
+              backdropFilter: 'blur(4px)',
+              color: '#fff',
+              padding: '4px 10px',
+              borderRadius: 6,
+              fontSize: 11,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              zIndex: 2,
+            }}>
+              📸 Google
+            </div>
+          )}
+          {/* Indicateur de chargement des photos Google */}
+          {photosLoading && (
+            <div style={{
+              position: 'absolute',
+              top: 14,
+              right: 14,
+              background: 'rgba(0,0,0,0.45)',
+              backdropFilter: 'blur(4px)',
+              color: '#fff',
+              padding: '6px 12px',
+              borderRadius: 8,
+              fontSize: 11,
+              zIndex: 2,
+            }}>
+              📸 Chargement...
+            </div>
+          )}
           {/* Bouton retour par-dessus la photo */}
           <button onClick={onBack} style={{
             position: 'absolute', top: 14, left: 14,
