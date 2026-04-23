@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { MapPin, Award, Users, Filter, Plus, Star, Accessibility, Eye, Ear, Brain, Search, X, Trophy, Sparkles, TrendingUp, Moon, Sun, Check, Target, Flame, Crown, User, ChevronRight, Navigation, Camera, Heart, Share2, ArrowUpDown, Locate, Phone, Route, Type, ZoomIn, FileText, Shield, Info } from 'lucide-react';
-
+import { Turnstile } from '@marsidev/react-turnstile';
 // ======================================================
 // DONNÉES — 60+ lieux réels de Périgueux
 // Sources officielles :
