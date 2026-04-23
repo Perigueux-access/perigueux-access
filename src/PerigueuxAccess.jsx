@@ -1965,17 +1965,38 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
             <div style={{fontSize: 10, color: theme.textDim, textAlign: 'right', marginBottom: 8}}>
               {reviewText.length}/500 caractères
             </div>
-            <button onClick={() => {
-              const trimmed = reviewText.trim();
-              if (trimmed.length < 3) { window.alert('Votre avis est trop court (minimum 3 caractères)'); return; }
-              onAddReview(reviewRating, trimmed);
-              setReviewText('');
-              setShowReviewForm(false);
-            }} style={{
-              background: theme.accent, color: '#fff', border: 'none',
-              borderRadius: 10, padding: '10px 16px', fontSize: 13, fontWeight: 700,
-              cursor: 'pointer', fontFamily: 'inherit',
-            }}>Publier (+15 XP)</button>
+            {/* CAPTCHA anti-spam (invisible pour la plupart des utilisateurs) */}
+            <div style={{marginBottom: 10}}>
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                onSuccess={(token) => setCaptchaToken(token)}
+                onError={() => setCaptchaToken(null)}
+                onExpire={() => setCaptchaToken(null)}
+                options={{ theme: 'auto', size: 'flexible' }}
+              />
+            </div>
+            <button
+              disabled={!captchaToken}
+              onClick={() => {
+                const trimmed = reviewText.trim();
+                if (trimmed.length < 3) { window.alert('Votre avis est trop court (minimum 3 caractères)'); return; }
+                if (!captchaToken) { window.alert('Merci de patienter, la vérification anti-spam est en cours...'); return; }
+                onAddReview(reviewRating, trimmed);
+                setReviewText('');
+                setShowReviewForm(false);
+                setCaptchaToken(null);
+              }}
+              style={{
+                background: captchaToken ? theme.accent : theme.surfaceAlt,
+                color: captchaToken ? '#fff' : theme.textDim,
+                border: 'none', borderRadius: 10, padding: '10px 16px',
+                fontSize: 13, fontWeight: 700,
+                cursor: captchaToken ? 'pointer' : 'not-allowed',
+                fontFamily: 'inherit',
+              }}
+            >
+              Publier (+15 XP)
+            </button>
           </div>
         )}
 
