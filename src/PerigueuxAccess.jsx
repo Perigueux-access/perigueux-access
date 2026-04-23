@@ -164,50 +164,7 @@ const TYPES = {
 };
 
 // Photos par défaut par type — sources libres de droits (Wikimedia Commons / Unsplash)
-const DEFAULT_PHOTOS = {
-  restaurant: [
-    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1537047902294-62a40c20a6ae?w=800&h=400&fit=crop&q=80',
-  ],
-  parc: [
-    'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1416169607655-0c2b3ce2e1cc?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&h=400&fit=crop&q=80',
-  ],
-  balade: [
-    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=400&fit=crop&q=80',
-  ],
-  culture: [
-    'https://images.unsplash.com/photo-1564399579883-451a5d44ec08?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1568797629192-789acf8e4df3?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&h=400&fit=crop&q=80',
-  ],
-  commerce: [
-    'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=800&h=400&fit=crop&q=80',
-  ],
-  toilettes: [
-    'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&h=400&fit=crop&q=80',
-  ],
-  parking: [
-    'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=800&h=400&fit=crop&q=80',
-  ],
-  sucre: [
-    'https://images.unsplash.com/photo-1471086569966-db3eebc25a59?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=400&fit=crop&q=80',
-  ],
-  diabetologue: [
-    'https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=800&h=400&fit=crop&q=80',
-  ],
-  laboratoire: [
-    'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&h=400&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=800&h=400&fit=crop&q=80',
-  ],
-};
+
 
 const DISABILITIES = {
   moteur: { label: 'Moteur', icon: Accessibility },
