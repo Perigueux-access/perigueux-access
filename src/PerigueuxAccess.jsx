@@ -1832,9 +1832,53 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
             Score d'accessibilité
           </div>
         </div>
-
-        {/* Check-in */}
-        <button onClick={onCheckin} disabled={hasVisited} style={{
+{/* Check-in avec vérification géolocalisation */}
+        <button onClick={() => {
+          if (hasVisited) return;
+          
+          // Demander la géolocalisation
+          if (!navigator.geolocation) {
+            window.alert("La géolocalisation n'est pas disponible sur votre appareil.");
+            return;
+          }
+          
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLng = position.coords.longitude;
+              const distanceMeters = haversine(userLat, userLng, place.lat, place.lng) * 1000;
+              
+              // Tolérance : 100 mètres (tient compte de la précision GPS)
+              const MAX_DISTANCE = 100;
+              
+              if (distanceMeters > MAX_DISTANCE) {
+                const distance = distanceMeters < 1000 
+                  ? `${Math.round(distanceMeters)} mètres` 
+                  : `${(distanceMeters/1000).toFixed(1)} km`;
+                window.alert(
+                  `❌ Vous êtes trop loin du lieu (${distance}).\n\n` +
+                  `Pour valider votre visite, vous devez être physiquement sur place (moins de ${MAX_DISTANCE} mètres).`
+                );
+                return;
+              }
+              
+              // ✅ Check-in validé
+              onCheckin();
+            },
+            (error) => {
+              let msg = "Impossible d'obtenir votre position.";
+              if (error.code === 1) msg = "🚫 Vous avez refusé la géolocalisation.\n\nPour valider votre visite, vous devez autoriser l'accès à votre position dans les réglages de votre navigateur.";
+              else if (error.code === 2) msg = "📡 Position indisponible. Vérifiez que le GPS est activé.";
+              else if (error.code === 3) msg = "⏱️ La localisation a pris trop de temps. Réessayez.";
+              window.alert(msg);
+            },
+            {
+              enableHighAccuracy: true,  // Force le GPS précis (pas le Wi-Fi approximatif)
+              timeout: 10000,            // 10 secondes max
+              maximumAge: 0,             // Pas de cache, position en temps réel
+            }
+          );
+        }} disabled={hasVisited} style={{
           width: '100%', background: hasVisited ? theme.surfaceAlt : theme.accent,
           color: hasVisited ? theme.textDim : '#fff',
           border: 'none', borderRadius: 14, padding: '14px',
@@ -1844,7 +1888,6 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
         }}>
           {hasVisited ? <><Check size={18}/> Lieu déjà visité</> : <><Navigation size={18}/> Je suis sur place (+20 XP)</>}
         </button>
-
         {/* Barre d'actions : Itinéraire / Partage / Favoris */}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap: 8, marginTop: 10}}>
           <button onClick={onDirections} aria-label="Obtenir l'itinéraire" style={{
