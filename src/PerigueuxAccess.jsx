@@ -1586,9 +1586,7 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
   const avgRating = place.reviews.length > 0 ? place.reviews.reduce((s,r)=>s+r.rating,0)/place.reviews.length : place.score;
 
   // Photos : d'abord Google Places (vraies photos), sinon photos du lieu, sinon photos par défaut
-  const fallbackPhotos = (place.photos && place.photos.length > 0)
-    ? place.photos
-    : (DEFAULT_PHOTOS[place.type] || []);
+  const fallbackPhotos = place.photos || [];
   const { photos, loading: photosLoading, isGoogle } = useGooglePhotos(
     place.name,
     place.address,
