@@ -255,7 +255,146 @@ const storage = {
     try { localStorage.removeItem(key); } catch(e) {}
   },
 };
+// ============================================
+// Formulaire d'avis avec CAPTCHA Turnstile
+// ============================================
+function ReviewForm({ place, theme, onCancel, onSubmit }) {
+  const [reviewText, setReviewText] = useState('');
+  const [rating, setRating] = useState(5);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
+  const handleSubmit = async () => {
+    if (!captchaToken) {
+      alert('Merci de patienter, la vérification anti-spam est en cours...');
+      return;
+    }
+    if (reviewText.trim().length < 10) {
+      alert('Merci de rédiger un avis d\'au moins 10 caractères.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Pour l'instant on simule — on branchera le vrai backend après
+      console.log('Avis prêt à envoyer :', {
+        placeId: place.id,
+        rating,
+        text: reviewText,
+        captchaToken,
+      });
+      alert('Avis reçu (simulation) ! Le backend sera branché à l\'étape suivante.');
+      onSubmit && onSubmit();
+    } catch (err) {
+      alert('Erreur lors de l\'envoi : ' + err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div style={{
+      padding: 16,
+      background: theme.surface,
+      borderRadius: 12,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+      marginTop: 16,
+    }}>
+      <h3 style={{margin: 0, color: theme.text}}>
+        Donner mon avis sur {place.name}
+      </h3>
+
+      {/* Note (étoiles) */}
+      <div style={{display: 'flex', gap: 6, alignItems: 'center'}}>
+        <span style={{color: theme.text}}>Note :</span>
+        {[1, 2, 3, 4, 5].map(n => (
+          <button
+            key={n}
+            onClick={() => setRating(n)}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: 24,
+              cursor: 'pointer',
+              color: n <= rating ? '#f5c518' : '#ccc',
+              padding: 0,
+            }}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+
+      {/* Texte de l'avis */}
+      <textarea
+        value={reviewText}
+        onChange={(e) => setReviewText(e.target.value)}
+        placeholder="Partagez votre expérience sur l'accessibilité de ce lieu..."
+        rows={4}
+        style={{
+          padding: 10,
+          borderRadius: 8,
+          border: `1px solid ${theme.border || '#ddd'}`,
+          background: theme.surfaceAlt,
+          color: theme.text,
+          fontFamily: 'inherit',
+          fontSize: 14,
+          resize: 'vertical',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      />
+
+      {/* Widget Turnstile (invisible la plupart du temps) */}
+      <Turnstile
+        siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+        onSuccess={(token) => setCaptchaToken(token)}
+        onError={() => setCaptchaToken(null)}
+        onExpire={() => setCaptchaToken(null)}
+        options={{
+          theme: 'auto',
+          size: 'flexible',
+        }}
+      />
+
+      {/* Boutons */}
+      <div style={{display: 'flex', gap: 10, justifyContent: 'flex-end'}}>
+        <button
+          onClick={onCancel}
+          style={{
+            padding: '10px 16px',
+            borderRadius: 8,
+            border: `1px solid ${theme.border || '#ddd'}`,
+            background: 'transparent',
+            color: theme.text,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          Annuler
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={!captchaToken || submitting}
+          style={{
+            padding: '10px 16px',
+            borderRadius: 8,
+            border: 'none',
+            background: captchaToken && !submitting ? '#2563eb' : '#999',
+            color: '#fff',
+            cursor: captchaToken && !submitting ? 'pointer' : 'not-allowed',
+            fontWeight: 600,
+            fontFamily: 'inherit',
+          }}
+        >
+          {submitting ? 'Envoi...' : 'Publier mon avis'}
+        </button>
+      </div>
+    </div>
+  );
+}
 export default function PerigueuxAccess() {
   const [view, setView] = useState('map'); // map | profile | leaderboard | add | place
   const [places, setPlaces] = useState(SEED_PLACES);
