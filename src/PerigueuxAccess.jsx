@@ -1675,6 +1675,7 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
   const [photoIdx, setPhotoIdx] = useState(0);
   const typeCfg = TYPES[place.type];
   const hasVisited = profile.checkins.includes(place.id);
