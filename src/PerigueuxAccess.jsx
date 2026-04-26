@@ -1677,6 +1677,7 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [captchaToken, setCaptchaToken] = useState(null);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const typeCfg = TYPES[place.type];
   const hasVisited = profile.checkins.includes(place.id);
   const isFav = profile.favorites.includes(place.id);
@@ -1690,8 +1691,9 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
     fallbackPhotos
   );
 
-  // Reset photoIdx quand on change de lieu
-  useEffect(() => { setPhotoIdx(0); }, [place.id]);
+  // Reset photoIdx et imgLoaded quand on change de lieu ou de photo
+  useEffect(() => { setPhotoIdx(0); setImgLoaded(false); }, [place.id]);
+  useEffect(() => { setImgLoaded(false); }, [photoIdx]);
 
   // Distance si géoloc
   const distanceKm = userLocation
@@ -1701,17 +1703,24 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
   return (
     <div>
       {/* Carrousel de photos */}
-      {photos.length > 0 && (
+      {(photos.length > 0 || photosLoading) && (
         <div style={{position: 'relative', width: '100%', aspectRatio: '16/7', maxHeight: 280, overflow: 'hidden', background: theme.surfaceAlt}}>
-          <img
-            src={photos[photoIdx]}
-            alt={place.name}
-            style={{
-              width: '100%', height: '100%', objectFit: 'cover',
-              display: 'block',
-            }}
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
+          {photos.length > 0 ? (
+            <img
+              src={photos[photoIdx]}
+              alt={place.name}
+              style={{
+                width: '100%', height: '100%', objectFit: 'cover',
+                display: 'block',
+                opacity: imgLoaded ? 1 : 0,
+                transition: 'opacity 0.3s ease',
+              }}
+              onLoad={() => setImgLoaded(true)}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <div style={{ width: '100%', height: '100%', background: theme.surfaceAlt }} />
+          )}
           {/* Badge source des photos (Google Places) */}
           {isGoogle && (
             <div style={{
@@ -1790,17 +1799,17 @@ function PlaceDetail({ theme, fontDisplay, place, profile, onBack, onCheckin, on
 
       {/* Hero */}
       <div style={{
-        background: photos.length > 0 ? theme.bg : `linear-gradient(180deg, ${typeCfg.color}22 0%, ${theme.bg} 100%)`,
+        background: (photos.length > 0 || photosLoading) ? theme.bg : `linear-gradient(180deg, ${typeCfg.color}22 0%, ${theme.bg} 100%)`,
         padding: '20px 20px 30px',
       }}>
-        {photos.length === 0 && (
+        {photos.length === 0 && !photosLoading && (
           <button onClick={onBack} style={{
             background: theme.surface, border: `1px solid ${theme.border}`, borderRadius: 10,
             padding: '8px 14px', color: theme.text, cursor: 'pointer', marginBottom: 16,
             fontSize: 13, fontFamily: 'inherit', display:'flex',alignItems:'center',gap:4,
           }}>← Retour carte</button>
         )}
-        {photos.length > 0 && <div style={{height: 8}}/>}
+        {(photos.length > 0 || photosLoading) && <div style={{height: 8}}/>}
 
         <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:8}}>
           <span style={{
